@@ -4,6 +4,8 @@ import androidx.annotation.NonNull;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.content.ContextCompat;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 
 import android.Manifest;
 import android.app.Activity;
@@ -27,6 +29,7 @@ import android.widget.Toast;
 import com.example.fivecontacts.R;
 import com.example.fivecontacts.main.model.Contato;
 import com.example.fivecontacts.main.model.User;
+import com.example.fivecontacts.main.model.recyclerAdapter;
 import com.example.fivecontacts.main.utils.UIEducacionalPermissao;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 
@@ -51,6 +54,8 @@ public class ListaDeContatos_Activity extends AppCompatActivity implements UIEdu
     Uri uriAtual;
     boolean callDenied = false;
 
+    RecyclerView recyclerView;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -59,11 +64,11 @@ public class ListaDeContatos_Activity extends AppCompatActivity implements UIEdu
         bnv = findViewById(R.id.bnv);
         bnv.setOnNavigationItemSelectedListener(this);
         bnv.setSelectedItemId(R.id.anvLigar);
-
         lv = findViewById(R.id.listView1);
-
         textLigar = findViewById(R.id.tvLigar);
         delContato = findViewById(R.id.tvDelete);
+
+        recyclerView = findViewById(R.id.recyclerContatos);
 
         // Dados da Intent anterior
         Intent quemChamou = this.getIntent();
@@ -82,8 +87,11 @@ public class ListaDeContatos_Activity extends AppCompatActivity implements UIEdu
 
     }
 
+
     protected void atualizarListaDeContatos(User user){
         SharedPreferences recuperarContatos = getSharedPreferences("contatos", Activity.MODE_PRIVATE);
+
+
 
         int num = recuperarContatos.getInt("numContatos", 0);
         ArrayList<Contato> contatos = new ArrayList<Contato>();
@@ -191,6 +199,7 @@ public class ListaDeContatos_Activity extends AppCompatActivity implements UIEdu
         final ArrayList<Contato> contatos = user.getContatos();
         Collections.sort(contatos);
 
+
         if (contatos != null) {
             textLigar.setText("Toque para ligar");
             delContato.setVisibility(View.VISIBLE);
@@ -221,8 +230,15 @@ public class ListaDeContatos_Activity extends AppCompatActivity implements UIEdu
                 listItemMap.put("abreviation", contatosAbrevs[i]);
                 itemDataList.add(listItemMap);
             }
-            final SimpleAdapter simpleAdapter = new SimpleAdapter(this,itemDataList,R.layout.list_view_layout_imagem,
+            final SimpleAdapter simpleAdapter = new SimpleAdapter(this,itemDataList,R.layout.cardview,
                     new String[]{"imageId","contato","abreviation"},new int[]{R.id.userImage, R.id.userTitle,R.id.userAbrev});
+
+
+            //Hook Adapter
+            recyclerAdapter adapter = new recyclerAdapter(contatos);
+            RecyclerView.LayoutManager layoutManager = new LinearLayoutManager(getApplicationContext());
+            recyclerView.setLayoutManager(layoutManager);
+            recyclerView.setAdapter(adapter);
 
             lv.setAdapter(simpleAdapter);
 
